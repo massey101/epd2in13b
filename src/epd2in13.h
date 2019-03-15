@@ -30,36 +30,47 @@
 #include "epdif.h"
 
 // Display resolution
-/* the resolution is 122x250 in fact */
-/* however, the logical resolution is 128x250 */
-#define EPD_WIDTH       128
-#define EPD_HEIGHT      250
+#define EPD_WIDTH       104
+#define EPD_HEIGHT      212
 
-// EPD2IN13 commands
-#define DRIVER_OUTPUT_CONTROL                       0x01
-#define BOOSTER_SOFT_START_CONTROL                  0x0C
-#define GATE_SCAN_START_POSITION                    0x0F
-#define DEEP_SLEEP_MODE                             0x10
-#define DATA_ENTRY_MODE_SETTING                     0x11
-#define SW_RESET                                    0x12
-#define TEMPERATURE_SENSOR_CONTROL                  0x1A
-#define MASTER_ACTIVATION                           0x20
-#define DISPLAY_UPDATE_CONTROL_1                    0x21
-#define DISPLAY_UPDATE_CONTROL_2                    0x22
-#define WRITE_RAM                                   0x24
-#define WRITE_VCOM_REGISTER                         0x2C
-#define WRITE_LUT_REGISTER                          0x32
-#define SET_DUMMY_LINE_PERIOD                       0x3A
-#define SET_GATE_TIME                               0x3B
-#define BORDER_WAVEFORM_CONTROL                     0x3C
-#define SET_RAM_X_ADDRESS_START_END_POSITION        0x44
-#define SET_RAM_Y_ADDRESS_START_END_POSITION        0x45
-#define SET_RAM_X_ADDRESS_COUNTER                   0x4E
-#define SET_RAM_Y_ADDRESS_COUNTER                   0x4F
-#define TERMINATE_FRAME_READ_WRITE                  0xFF
-
-extern const unsigned char lut_full_update[];
-extern const unsigned char lut_partial_update[];
+// EPD2IN13B commands
+#define PANEL_SETTING                               0x00
+#define POWER_SETTING                               0x01
+#define POWER_OFF                                   0x02
+#define POWER_OFF_SEQUENCE_SETTING                  0x03
+#define POWER_ON                                    0x04
+#define POWER_ON_MEASURE                            0x05
+#define BOOSTER_SOFT_START                          0x06
+#define DEEP_SLEEP                                  0x07
+#define DATA_START_TRANSMISSION_1                   0x10
+#define DATA_STOP                                   0x11
+#define DISPLAY_REFRESH                             0x12
+#define DATA_START_TRANSMISSION_2                   0x13
+#define VCOM_LUT                                    0x20
+#define W2W_LUT                                     0x21
+#define B2W_LUT                                     0x22
+#define W2B_LUT                                     0x23
+#define B2B_LUT                                     0x24
+#define PLL_CONTROL                                 0x30
+#define TEMPERATURE_SENSOR_CALIBRATION              0x40
+#define TEMPERATURE_SENSOR_SELECTION                0x41
+#define TEMPERATURE_SENSOR_WRITE                    0x42
+#define TEMPERATURE_SENSOR_READ                     0x43
+#define VCOM_AND_DATA_INTERVAL_SETTING              0x50
+#define LOW_POWER_DETECTION                         0x51
+#define TCON_SETTING                                0x60
+#define RESOLUTION_SETTING                          0x61
+#define GET_STATUS                                  0x71
+#define AUTO_MEASURE_VCOM                           0x80
+#define READ_VCOM_VALUE                             0x81
+#define VCM_DC_SETTING                              0x82
+#define PARTIAL_WINDOW                              0x90
+#define PARTIAL_IN                                  0x91
+#define PARTIAL_OUT                                 0x92
+#define PROGRAM_MODE                                0xA0
+#define ACTIVE_PROGRAM                              0xA1
+#define READ_OTP_DATA                               0xA2
+#define POWER_SAVING                                0xE3
 
 struct epd {
     unsigned int width;
@@ -68,35 +79,46 @@ struct epd {
     unsigned int dc_pin;
     unsigned int cs_pin;
     unsigned int busy_pin;
-    const unsigned char* lut;
 };
 
-int epd_init(struct epd * epd, const unsigned char* lut);
+int epd_init(struct epd * epd);
 void epd_send_command(struct epd * epd, unsigned char command);
 void epd_send_data(struct epd * epd, unsigned char data);
 void epd_wait_until_idle(struct epd * epd);
 void epd_reset(struct epd * epd);
-void epd_set_frame_memory_at(
+void epd_set_partial_window(
     struct epd * epd,
-    const unsigned char* image_buffer,
+    const unsigned char* buffer_black,
+    const unsigned char* buffer_red,
+    int x,
+    int y,
+    int w,
+    int l
+);
+void epd_set_partial_window_black(
+    struct epd * epd,
+    const unsigned char* buffer_black,
     unsigned int x,
     unsigned int y,
-    unsigned int image_width,
-    unsigned int image_height
+    unsigned int w,
+    unsigned int l
 );
-void epd_set_frame_memory(struct epd * epd, const unsigned char* image_buffer);
-void epd_clear_frame_memory(struct epd * epd, unsigned char color);
+void epd_set_partial_window_red(
+    struct epd * epd,
+    const unsigned char* buffer_red,
+    unsigned int x,
+    unsigned int y,
+    unsigned int w,
+    unsigned int l
+);
+void epd_display_frame_direct(
+    struct epd * epd,
+    const unsigned char* frame_buffer_black,
+    const unsigned char* frame_buffer_red
+);
+void epd_clear_frame_memory(struct epd * epd);
 void epd_display_frame(struct epd * epd);
 void epd_sleep(struct epd * epd);
-void epd_set_lut(struct epd * epd, const unsigned char* lut);
-void epd_set_memory_area(
-    struct epd * epd,
-    int x_start,
-    int y_start,
-    int x_end,
-    int y_end
-);
-void epd_set_memory_pointer(struct epd * epd, int x, int y);
 
 #endif /* EPD2IN13_H */
 

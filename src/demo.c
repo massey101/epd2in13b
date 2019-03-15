@@ -30,7 +30,6 @@
 #include "epd2in13.h"
 #include "epdpaint.h"
 #include "uart.h"
-// #include "demo-imagedata.h"
 
 #define COLORED     0
 #define UNCOLORED   1
@@ -41,100 +40,51 @@
   * update a partial display several times.
   * 1 byte = 8 pixels, therefore you have to set 8*N pixels at a time.
   */
-unsigned char image[1024];
+unsigned char image[1120];
 // Paint paint(image, 0, 0);
 // Epd epd;
 unsigned long time_start_ms;
 unsigned long time_now_s;
+
+void draw_rec(struct epd * epd, struct paint * paint, unsigned int x, unsigned int y, unsigned int w) {
+    paint_DrawFilledRectangle(paint, x, y, x+w, y+w, COLORED);
+    epd_set_partial_window_black(
+        epd,
+        paint_GetImage(paint),
+        0,
+        0,
+        paint_GetWidth(paint),
+        paint_GetHeight(paint)
+    );
+}
 
 void setup(struct epd * epd, struct paint * paint) {
     // put your setup code here, to run once:
     uart_init(38400);
     stdout = &uart_stdout;
     stdin = &uart_input;
-    printf("epd_init\n");
-    epd_init(epd, lut_full_update);
-    printf("paint_init\n");
+    epd_init(epd);
     paint_init(paint, image, 0, 0);
 
-    printf("epd_clear_frame_memory\n");
-    getchar();
-    epd_clear_frame_memory(epd, 0xFF);   // bit set = white, bit reset = black
+    epd_clear_frame_memory(epd);   // bit set = white, bit reset = black
 
-    paint_SetRotate(paint, ROTATE_0);
-    paint_SetWidth(paint, 128);    // width should be the multiple of 8 
-    paint_SetHeight(paint, 24);
+    paint_SetRotate(paint, ROTATE_90);
+    paint_SetWidth(paint, 16);    // width should be the multiple of 8
+    paint_SetHeight(paint, 200);
+
+    paint_Clear(paint, UNCOLORED);
+    paint_DrawStringAt(paint, 0, 0, "enter a string:", &Font16, COLORED);
+    epd_set_partial_window_black(
+        epd,
+        paint_GetImage(paint),
+        epd->width - paint->width,
+        8,
+        paint_GetWidth(paint),
+        paint_GetHeight(paint)
+    );
 
     /* For simplicity, the arguments are explicit numerical coordinates */
-    paint_Clear(paint, COLORED);
-    paint_DrawFilledRectangle(paint, 10, 10, 20, 20, UNCOLORED);
-    printf("epd_set_frame_memory_at\n");
-    epd_set_frame_memory_at(
-        epd,
-        paint_GetImage(paint),
-        0,
-        0,
-        paint_GetWidth(paint),
-        paint_GetHeight(paint)
-    );
-    printf("epd_display_frame\n");
     epd_display_frame(epd);
-    epd_set_frame_memory_at(
-        epd,
-        paint_GetImage(paint),
-        0,
-        0,
-        paint_GetWidth(paint),
-        paint_GetHeight(paint)
-    );
-    printf("epd_display_frame\n");
-    epd_display_frame(epd);
-
-    _delay_ms(4000);
-
-    // paint_DrawStringAt(paint, 30, 4, "Hello world!", &Font12, UNCOLORED);
-
-    // paint_Clear(paint, UNCOLORED);
-    // paint_DrawStringAt(paint, 30, 4, "e-Paper Demo", &Font12, COLORED);
-    // epd_set_frame_memory(epd, paint_GetImage(paint), 0, 30, paint_GetWidth(paint), paint_GetHeight(paint));
-
-    // paint_SetWidth(paint, 64);
-    // paint_SetHeight(paint, 64);
-
-    // paint_Clear(paint, UNCOLORED);
-    // paint_DrawRectangle(paint, 0, 0, 40, 50, COLORED);
-    // paint_DrawLine(paint, 0, 0, 40, 50, COLORED);
-    // paint_DrawLine(paint, 40, 0, 0, 50, COLORED);
-    // epd_set_frame_memory(epd, paint_GetImage(paint), 16, 60, paint_GetWidth(paint), paint_GetHeight(paint));
-
-    // paint_Clear(paint, UNCOLORED);
-    // paint_DrawCircle(paint, 32, 32, 30, COLORED);
-    // epd_set_frame_memory(epd, paint_GetImage(paint), 72, 60, paint_GetWidth(paint), paint_GetHeight(paint));
-
-    // paint_Clear(paint, UNCOLORED);
-    // paint_DrawFilledRectangle(paint, 0, 0, 40, 50, COLORED);
-    // epd_set_frame_memory(epd, paint_GetImage(paint), 16, 130, paint_GetWidth(paint), paint_GetHeight(paint));
-
-    // paint_Clear(paint, UNCOLORED);
-    // paint_DrawFilledCircle(paint, 32, 32, 30, COLORED);
-    // epd_set_frame_memory(epd, paint_GetImage(paint), 72, 130, paint_GetWidth(paint), paint_GetHeight(paint));
-    // if (epd->Init(lut_partial_update) != 0) {
-    //     Serial.print("e-Paper init failed");
-    //     return;
-    // }
-
-    /** 
-     *  there are 2 memory areas embedded in the e-paper display
-     *  and once the display is refreshed, the memory area will be auto-toggled,
-     *  i.e. the next action of SetFrameMemory will set the other memory area
-     *  therefore you have to set the frame memory and refresh the display twice.
-     */
-    // epd_set_frame_memory(epd, IMAGE_DATA);
-    // epd->DisplayFrame();
-    // epd_set_frame_memory(epd, IMAGE_DATA);
-    // epd->DisplayFrame();
-
-    // time_start_ms = millis();
 }
 
 
@@ -142,30 +92,25 @@ int main() {
     struct epd epd;
     struct paint paint;
     setup(&epd, &paint);
-    int i = 0;
-    int j = 0;
+    char number_str[32];
+    int number;
+    paint_SetWidth(&paint, 24);    // width should be the multiple of 8
     while (1) {
         paint_Clear(&paint, UNCOLORED);
-        paint_DrawFilledRectangle(&paint, i, j, i+10, j+10, COLORED);
-        epd_set_frame_memory_at(
+        printf("Enter a number: ");
+        scanf("%d", &number);
+        sprintf(number_str, "Got: %d", number);
+        paint_DrawStringAt(&paint, 0, 0, number_str, &Font24, COLORED);
+
+        epd_set_partial_window_black(
             &epd,
             paint_GetImage(&paint),
-            0,
-            0,
+            epd.width - paint.width-32,
+            8,
             paint_GetWidth(&paint),
             paint_GetHeight(&paint)
         );
         epd_display_frame(&epd);
-        i += 10;
-        j += 10;
-        if (i > epd.width) {
-            i = 0;
-        }
-        if (j > epd.height) {
-            j = 0;
-        }
-
-        _delay_ms(4000);
     }
 
     return 0;

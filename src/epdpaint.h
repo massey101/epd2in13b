@@ -2,7 +2,7 @@
  *  @filename   :   epdpaint.h
  *  @brief      :   Header file for epdpaint.cpp
  *  @author     :   Yehui from Waveshare
- *  
+ *
  *  Copyright (C) Waveshare     July 28 2017
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,7 +36,7 @@
 // Color inverse. 1 or 0 = set or reset a bit if set a colored pixel
 #define IF_INVERT_COLOR     1
 
-// #include "fonts.h"
+#include "fonts.h"
 
 struct paint {
     unsigned char* image;
@@ -56,15 +56,15 @@ void paint_SetRotate(struct paint * paint, int rotate);
 unsigned char* paint_GetImage(struct paint * paint);
 void paint_DrawAbsolutePixel(struct paint * paint, int x, int y, int colored);
 void paint_DrawPixel(struct paint * paint, int x, int y, int colored);
-// void paint_DrawCharAt(struct paint * paint, int x, int y, char ascii_char, sFONT* font, int colored);
-// void paint_DrawStringAt(struct paint * paint, int x, int y, const char* text, sFONT* font, int colored);
-// void paint_DrawLine(struct paint * paint, int x0, int y0, int x1, int y1, int colored);
-// void paint_DrawHorizontalLine(struct paint * paint, int x, int y, int width, int colored);
+void paint_DrawCharAt(struct paint * paint, int x, int y, char ascii_char, sFONT* font, int colored);
+void paint_DrawStringAt(struct paint * paint, int x, int y, const char* text, sFONT* font, int colored);
+void paint_DrawLine(struct paint * paint, int x0, int y0, int x1, int y1, int colored);
+void paint_DrawHorizontalLine(struct paint * paint, int x, int y, int width, int colored);
 void paint_DrawVerticalLine(struct paint * paint, int x, int y, int height, int colored);
-// void paint_DrawRectangle(struct paint * paint, int x0, int y0, int x1, int y1, int colored);
+void paint_DrawRectangle(struct paint * paint, int x0, int y0, int x1, int y1, int colored);
 void paint_DrawFilledRectangle(struct paint * paint, int x0, int y0, int x1, int y1, int colored);
-// void paint_DrawCircle(struct paint * paint, int x, int y, int radius, int colored);
-// void paint_DrawFilledCircle(struct paint * paint, int x, int y, int radius, int colored);
+void paint_DrawCircle(struct paint * paint, int x, int y, int radius, int colored);
+void paint_DrawFilledCircle(struct paint * paint, int x, int y, int radius, int colored);
 
 #endif
 

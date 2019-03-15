@@ -25,9 +25,9 @@ OBJ = obj
 MKDIR_P = mkdir -p
 
 # Source
-OBJS = $(OBJ)/demo.o $(OBJ)/epd2in13.o $(OBJ)/epdif.o $(OBJ)/epdpaint.o $(OBJ)/uart.o
+OBJS = $(OBJ)/demo.o $(OBJ)/epd2in13.o $(OBJ)/epdif.o $(OBJ)/epdpaint.o $(OBJ)/uart.o $(OBJ)/font8.o $(OBJ)/font12.o $(OBJ)/font16.o $(OBJ)/font20.o $(OBJ)/font24.o $(OBJ)/demo-imagedata.o
 LIB =
-DEPS = $(SRC)/epd2in13.h $(SRC)/epdif.h $(SRC)/epdpaint.h $(SRC)/uart.h
+DEPS = $(SRC)/epd2in13.h $(SRC)/epdif.h $(SRC)/epdpaint.h $(SRC)/uart.h $(SRC)/fonts.h
 
 # Output
 HEX = $(BIN)/$(PROJ).hex
